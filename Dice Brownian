@@ -1,0 +1,55 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.stats import randint, kurtosis
+
+X0 = 0         # Initial value
+T = 100.0         # Total time
+dt = 1        # Time step
+N = int(T / dt)  # Number of time steps
+path=10000       # number of paths
+
+# Pre-allocate array for efficiency
+XT = np.zeros((N, path))
+XT[0,:] = X0
+t_vec, dt = np.linspace(0,T,N, retstep=True)
+
+# Generate the process
+for t in range(1, N):
+    D=np.random.randint(1,7, path)
+    S=np.sqrt(D)
+    dW = np.random.normal(0, dt,path)
+    XT[t,:] = XT[t-1,:] + np.sqrt(2) * S[:]*dW[:]
+
+# Plot the result
+figure, axis = plt.subplots(2, 2)
+
+for p in range(1,path):
+    axis[0,0].plot(t_vec,XT[:,p])
+axis[0,0].set_xlabel("Time")
+axis[0,0].set_ylabel("X(t)")
+axis[0,0].set_title("Paths")
+
+mediaa=np.zeros((N))
+disp=np.zeros((N))
+kur=np.zeros((N))
+
+for t in range (0,N):
+    mediaa[t]=np.mean(XT[t,:])
+    disp[t]=np.var(XT[t,:])
+    kur[t]=kurtosis(XT[t,:], fisher=True)
+
+axis[0,1].plot(t_vec, mediaa)
+axis[0,1].set_xlabel("Time")
+axis[0,1].set_ylabel("<X>")
+axis[0,1].set_title("Mean")
+
+axis[1, 0].plot(t_vec, disp)
+axis[1, 0].set_xlabel("Time")
+axis[1, 0].set_ylabel("<X^2>-<X>^2")
+axis[1, 0].set_title("Variance")
+
+axis[1, 1].plot(t_vec, kur)
+axis[1, 1].set_xlabel("Time")
+axis[1, 1].set_ylabel("\u03BA")
+axis[1, 1].set_title("Kurtosis")
+plt.show()
